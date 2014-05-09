@@ -10,12 +10,28 @@
     Usage:
       robot_interface_simulator.launch
   -->
-
+ 
   <!-- industrial_robot_simulator: accepts robot commands and reports status -->
-  <node pkg="industrial_robot_simulator" type="industrial_robot_simulator" name="industrial_robot_simulator"/>
-  
+  <node pkg="industrial_robot_simulator" type="industrial_robot_simulator" name="arm_simulator">
+   <rosparam command="load" file="$(find ur10_moveit)/config/arm_joint_names.yaml"/>
+    <param name="topic" value="arm"/>
+  </node>
+  <node pkg="industrial_robot_simulator" type="industrial_robot_simulator" name="gripper_simulator">
+   <rosparam command="load" file="$(find ur10_moveit)/config/gripper_joint_names.yaml"/>
+   <param name="topic" value="gripper"/>
+  </node>
   <!-- joint_trajectory_action: provides actionlib interface for high-level robot control -->
-  <node pkg="industrial_robot_client" type="joint_trajectory_action" name="joint_trajectory_action"/>
-
+  <node pkg="industrial_robot_client" type="joint_trajectory_action" name="joint_trajectory_action">
+  	<param name="use_moveit_groups" value="true"/>
+  	<param name="group" value="arm"/>
+    <param name="feedback_namespace" value="arm"/>
+  	<rosparam command="load" file="$(find ur10_moveit)/config/arm_joint_names.yaml"/>
+  </node>
+ <node pkg="industrial_robot_client" type="joint_trajectory_action" name="joint_trajectory_action_2">
+  	<param name="use_moveit_groups" value="true"/>
+  	<param name="group" value="gripper"/>
+  	<param name="feedback_namespace" value="gripper"/>
+  	<rosparam command="load" file="$(find ur10_moveit)/config/gripper_joint_names.yaml"/>
+  </node>
 </launch>
 

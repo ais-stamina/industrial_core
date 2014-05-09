@@ -42,28 +42,41 @@ namespace joint_trajectory_action
 const double JointTrajectoryAction::WATCHD0G_PERIOD_ = 1.0;
 const double JointTrajectoryAction::DEFAULT_GOAL_THRESHOLD_ = 0.01;
 
-JointTrajectoryAction::JointTrajectoryAction() :
-    action_server_(node_, "joint_trajectory_action", boost::bind(&JointTrajectoryAction::goalCB, this, _1),
-                   boost::bind(&JointTrajectoryAction::cancelCB, this, _1), false), has_active_goal_(false)
+JointTrajectoryAction::JointTrajectoryAction(): has_active_goal_(false)
+
 {
-  ros::NodeHandle pn("~");
+	ros::NodeHandle pn("~");
+	std::string name;
+	pn.param<std::string>("group", name, "group");
+	name+= "/joint_trajectory_action";
+	action_server_ = new JointTractoryActionServer(node_, name, boost::bind(&JointTrajectoryAction::goalCB, this, _1),
+	                   boost::bind(&JointTrajectoryAction::cancelCB, this, _1), false);
+
 
   pn.param("constraints/goal_threshold", goal_threshold_, DEFAULT_GOAL_THRESHOLD_);
-
-  if (!industrial_utils::param::getJointNames("controller_joint_names", "robot_description", joint_names_))
-    ROS_ERROR("Failed to initialize joint_names.");
-
+  pn.param("use_moveit_groups", load_moveit_controllers_, false);
+  std::string fNamespace;
+  pn.param<std::string>("feedback_namespace", fNamespace, "");
+  if(load_moveit_controllers_)
+  {
+	  pn.getParam("controller_joint_names", joint_names_);
+  }
+  else
+  {
+	  if (!industrial_utils::param::getJointNames("controller_joint_names", "robot_description", joint_names_))
+		  ROS_ERROR("Failed to initialize joint_names.");
+  }
   // The controller joint names parameter includes empty joint names for those joints not supported
   // by the controller.  These are removed since the trajectory action should ignore these.
   std::remove(joint_names_.begin(), joint_names_.end(), std::string());
   ROS_INFO_STREAM("Filtered joint names to " << joint_names_.size() << " joints");
 
-  pub_trajectory_command_ = node_.advertise<trajectory_msgs::JointTrajectory>("joint_path_command", 1);
-  sub_trajectory_state_ = node_.subscribe("feedback_states", 1, &JointTrajectoryAction::controllerStateCB, this);
+  pub_trajectory_command_ = node_.advertise<trajectory_msgs::JointTrajectory>(fNamespace+"/joint_path_command", 1);
+  sub_trajectory_state_ = node_.subscribe(fNamespace+"/feedback_states", 1, &JointTrajectoryAction::controllerStateCB, this);
   sub_robot_status_ = node_.subscribe("robot_status", 1, &JointTrajectoryAction::robotStatusCB, this);
 
   watchdog_timer_ = node_.createTimer(ros::Duration(WATCHD0G_PERIOD_), &JointTrajectoryAction::watchdog, this);
-  action_server_.start();
+  action_server_->start();
 }
 
 JointTrajectoryAction::~JointTrajectoryAction()
@@ -152,6 +165,7 @@ void JointTrajectoryAction::goalCB(JointTractoryActionServer::GoalHandle & gh)
     }
     else
     {
+      ROS_ERROR("Joint names size: %d and first joint %s", joint_names_.size(), joint_names_[0].c_str());
       ROS_ERROR("Joint trajectory action failing on invalid joints");
       control_msgs::FollowJointTrajectoryResult rslt;
       rslt.error_code = control_msgs::FollowJointTrajectoryResult::INVALID_JOINTS;
@@ -221,7 +235,9 @@ void JointTrajectoryAction::controllerStateCB(const control_msgs::FollowJointTra
 
   if (!industrial_utils::isSimilar(joint_names_, msg->joint_names))
   {
-    ROS_ERROR("Joint names from the controller don't match our joint names.");
+    ROS_ERROR("Joint names from the controller don't match our joint names. %i %i", joint_names_.size(), msg->joint_names.size());
+    for(int i=0; i<joint_names_.size(); i++)
+    	ROS_ERROR("Joint %s %s", joint_names_[i].c_str(), msg->joint_names[i].c_str() );
     return;
   }
 

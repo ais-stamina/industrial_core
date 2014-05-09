@@ -78,7 +78,7 @@ private:
   /**
    * \brief Internal action server
    */
-  JointTractoryActionServer action_server_;
+  JointTractoryActionServer* action_server_;
 
   /**
    * \brief Publishes desired trajectory (typically to the robot driver)
@@ -107,6 +107,10 @@ private:
    * \brief Indicates action has an active goal
    */
   bool has_active_goal_;
+  /**
+    * \brief Indicates whether to load moveit groups' controller action servers or just one action server for all joints in urdf
+    */
+  bool load_moveit_controllers_;
 
   /**
    * \brief Cache of the current active goal

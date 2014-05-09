@@ -208,11 +208,12 @@ class IndustrialRobotSimulatorNode():
         
         # Joint names
         def_joint_names = ["joint_1", "joint_2", "joint_3", "joint_4", "joint_5", "joint_6"] 
-        self.joint_names = rospy.get_param('controller_joint_names', def_joint_names)
+        self.joint_names = rospy.get_param('~controller_joint_names', def_joint_names)
         if len(self.joint_names) == 0:
             rospy.logwarn("Joint list is empty, did you set controller_joint_name?")
         rospy.loginfo("Setting joint names based on parameter: %s", str(self.joint_names))
-        
+        def_topic='topic'
+        self.topic=rospy.get_param('~topic', def_topic)
         # Setup initial joint positions
         num_joints = len(self.joint_names)
         initial_joint_state = rospy.get_param('initial_joint_state', [0]*num_joints)
@@ -233,11 +234,12 @@ class IndustrialRobotSimulatorNode():
         
         # Published to joint feedback
         rospy.loginfo("Creating joint feedback publisher")
-        self.joint_feedback_pub = rospy.Publisher('feedback_states', FollowJointTrajectoryFeedback)
-
+        pubtopic = self.topic +'/feedback_states'
+        self.joint_feedback_pub = rospy.Publisher(pubtopic, FollowJointTrajectoryFeedback)
+        pubtopic = self.topic +'/joint_path_command'
         # Subscribe to a joint trajectory
         rospy.loginfo("Creating joint trajectory subscriber")
-        self.joint_path_sub = rospy.Subscriber('joint_path_command', JointTrajectory, self.trajectory_callback)
+        self.joint_path_sub = rospy.Subscriber(pubtopic, JointTrajectory, self.trajectory_callback)
 
         # Timed task (started automatically)
         period = rospy.Duration(1.0/self.pub_rate)
