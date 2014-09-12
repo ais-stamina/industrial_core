@@ -14,6 +14,7 @@
   <!-- industrial_robot_simulator: accepts robot commands and reports status -->
   <node pkg="industrial_robot_simulator" type="industrial_robot_simulator" name="arm_simulator">
    <rosparam command="load" file="$(find ur10_moveit)/config/arm_joint_names.yaml"/>
+   <rosparam command="load" file="$(find ur10_moveit)/config/initial_joint_state.yaml"/>
     <param name="topic" value="arm"/>
   </node>
 
@@ -23,6 +24,7 @@
   	<param name="group" value="arm"/>
     <param name="feedback_namespace" value="arm"/>
   	<rosparam command="load" file="$(find ur10_moveit)/config/arm_joint_names.yaml"/>
+  	
   </node>
 
 </launch>

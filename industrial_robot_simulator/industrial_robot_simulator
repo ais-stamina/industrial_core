@@ -216,7 +216,7 @@ class IndustrialRobotSimulatorNode():
         self.topic=rospy.get_param('~topic', def_topic)
         # Setup initial joint positions
         num_joints = len(self.joint_names)
-        initial_joint_state = rospy.get_param('initial_joint_state', [0]*num_joints)
+        initial_joint_state = rospy.get_param('~initial_joint_state', [0]*num_joints)
         same_len = len(initial_joint_state) == num_joints
         all_num  = all(type(x) is int or type(x) is float for x in initial_joint_state)
         if not same_len or not all_num:
