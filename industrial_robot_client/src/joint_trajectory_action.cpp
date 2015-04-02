@@ -48,7 +48,7 @@ JointTrajectoryAction::JointTrajectoryAction(): has_active_goal_(false)
 	ros::NodeHandle pn("~");
 	std::string name;
 	pn.param<std::string>("group", name, "group");
-	name+= "/joint_trajectory_action";
+	name+= "/follow_joint_trajectory";
 	action_server_ = new JointTractoryActionServer(node_, name, boost::bind(&JointTrajectoryAction::goalCB, this, _1),
 	                   boost::bind(&JointTrajectoryAction::cancelCB, this, _1), false);
 

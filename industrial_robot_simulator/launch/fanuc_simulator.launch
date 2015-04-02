@@ -12,20 +12,17 @@
   -->
  
   <!-- industrial_robot_simulator: accepts robot commands and reports status -->
-
-  <node pkg="industrial_robot_simulator" type="industrial_robot_simulator" name="gripper_simulator">
-   <rosparam command="load" file="$(find ur10_moveit)/config/gripper_joint_names.yaml"/>
-   <param name="topic" value="gripper"/>
+  <node pkg="industrial_robot_simulator" type="industrial_robot_simulator" name="arm_simulator">
+   <rosparam command="load" file="$(find stamina_moveit_config)/config/arm_joint_names.yaml"/>
+    <param name="topic" value="arm_controller"/>
   </node>
-  
 
   <!-- joint_trajectory_action: provides actionlib interface for high-level robot control -->
-
- <node pkg="industrial_robot_client" type="joint_trajectory_action" name="joint_trajectory_action_2">
+  <node pkg="industrial_robot_client" type="joint_trajectory_action" name="joint_trajectory_action">
   	<param name="use_moveit_groups" value="true"/>
-  	<param name="group" value="gripper_controller"/>
-  	<param name="feedback_namespace" value="gripper"/>
-  	<rosparam command="load" file="$(find ur10_moveit)/config/gripper_joint_names.yaml"/>
+  	<param name="group" value="arm_controller"/>
+    <param name="feedback_namespace" value="arm_controller"/>
+  	<rosparam command="load" file="$(find stamina_moveit_config)/config/arm_joint_names.yaml"/>
   	
   </node>
 
