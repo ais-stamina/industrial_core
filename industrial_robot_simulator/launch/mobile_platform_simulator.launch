@@ -1,0 +1,29 @@
+<launch>
+
+  <!-- This launch file provides a simulated industrial robot
+
+       Several nodes are started, to simulate low-level robot communication
+       and higher-level actionlib support:
+         - industrial_robot simulator : accepts motion commands and publishes robot state
+         - joint_trajectory_action : actionlib interface to control robot motion
+
+    Usage:
+      robot_interface_simulator.launch
+  -->
+ 
+  <!-- industrial_robot_simulator: accepts robot commands and reports status -->
+  <node pkg="industrial_robot_simulator" type="industrial_robot_simulator" name="mobile_platform_simulator">
+   <rosparam command="load" file="$(find stamina_moveit_config)/config/mobile_platform_joint_names.yaml"/>
+    <param name="topic" value="mobile_platform_controller"/>
+  </node>
+
+  <!-- joint_trajectory_action: provides actionlib interface for high-level robot control -->
+  <node pkg="industrial_robot_client" type="joint_trajectory_action" name="joint_trajectory_action_3">
+  	<param name="use_moveit_groups" value="true"/>
+  	<param name="group" value="mobile_platform_controller"/>
+    <param name="feedback_namespace" value="mobile_platform"/>
+  	<rosparam command="load" file="$(find stamina_moveit_config)/config/mobile_platform_joint_names.yaml"/>
+  	
+  </node>
+
+</launch>
