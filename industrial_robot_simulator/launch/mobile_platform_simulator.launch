@@ -14,6 +14,7 @@
   <!-- industrial_robot_simulator: accepts robot commands and reports status -->
   <node pkg="industrial_robot_simulator" type="industrial_robot_simulator" name="mobile_platform_simulator">
    <rosparam command="load" file="$(find stamina_moveit_config)/config/mobile_platform_joint_names.yaml"/>
+    <rosparam command="load" file="$(find stamina_moveit_config)/config/initial_joint_state_mobile_base.yaml"/>
     <param name="topic" value="mobile_platform_controller"/>
   </node>
 
